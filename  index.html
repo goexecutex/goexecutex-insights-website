@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GoExecuteX Insights – Sales & Profit Analysis</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0b0d14;
+    color: #e0e4f0;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+
+  /* ===== UTILITIES ===== */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .section { padding: 90px 0; }
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #8b7cf8;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: #f0f2ff;
+  }
+  .section-subtitle {
+    font-size: 1.05rem;
+    color: #9ba3bf;
+    max-width: 600px;
+    margin-bottom: 56px;
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #8b7cf8, #5eaeff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11,13,20,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(139,124,248,0.12);
+    padding: 16px 0;
+  }
+  .nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-logo {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #f0f2ff;
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: #8b7cf8; }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #9ba3bf;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: #f0f2ff; }
+  .nav-cta {
+    background: linear-gradient(135deg, #8b7cf8, #5eaeff);
+    color: #fff !important;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    transition: opacity 0.2s !important;
+  }
+  .nav-cta:hover { opacity: 0.88; }
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px;
+  }
+  .nav-toggle span {
+    display: block; width: 24px; height: 2px;
+    background: #e0e4f0; border-radius: 2px;
+    transition: 0.3s;
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: inline-block;
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #8b7cf8, #5eaeff);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(139,124,248,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(139,124,248,0.4); }
+  .btn-secondary {
+    background: transparent;
+    color: #c5c8e8;
+    border: 1.5px solid rgba(139,124,248,0.4);
+  }
+  .btn-secondary:hover { border-color: #8b7cf8; color: #f0f2ff; background: rgba(139,124,248,0.06); }
+
+  /* ===== HERO ===== */
+  #hero {
+    padding: 110px 0 90px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(139,124,248,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(139,124,248,0.12);
+    border: 1px solid rgba(139,124,248,0.3);
+    color: #a99dfb;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+  .hero-title {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 10px;
+    color: #f0f2ff;
+  }
+  .hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: #8b7cf8;
+    font-weight: 600;
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+  .hero-main {
+    font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+    font-weight: 700;
+    color: #f0f2ff;
+    max-width: 680px;
+    margin: 0 auto 20px;
+    line-height: 1.4;
+  }
+  .hero-desc {
+    font-size: 1rem;
+    color: #9ba3bf;
+    max-width: 560px;
+    margin: 0 auto 40px;
+  }
+  .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .hero-tagline {
+    margin-top: 40px;
+    font-size: 0.85rem;
+    color: #5a6280;
+    letter-spacing: 0.04em;
+  }
+  .hero-tagline span { color: #8b7cf8; font-weight: 600; }
+
+  /* ===== PROBLEM ===== */
+  #problem { background: #0e1020; }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+    margin-top: 48px;
+  }
+  .problem-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(139,124,248,0.12);
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .problem-card:hover { border-color: rgba(139,124,248,0.35); transform: translateY(-3px); }
+  .problem-icon {
+    font-size: 1.8rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .problem-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f0f2ff;
+    margin-bottom: 8px;
+  }
+  .problem-card p { font-size: 0.9rem; color: #7a82a0; }
+
+  /* ===== WHAT WE ANALYZE ===== */
+  #analyze { background: #0b0d14; }
+  .analyze-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    margin-top: 48px;
+  }
+  .analyze-card {
+    background: linear-gradient(145deg, rgba(139,124,248,0.07), rgba(94,174,255,0.04));
+    border: 1px solid rgba(139,124,248,0.15);
+    border-radius: 14px;
+    padding: 26px 22px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .analyze-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(135deg, #8b7cf8, #5eaeff);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .analyze-card:hover { border-color: rgba(139,124,248,0.4); transform: translateY(-3px); }
+  .analyze-card:hover::after { opacity: 1; }
+  .analyze-card .icon { font-size: 1.6rem; margin-bottom: 14px; display: block; }
+  .analyze-card h3 { font-size: 0.98rem; font-weight: 700; color: #f0f2ff; margin-bottom: 6px; }
+  .analyze-card p { font-size: 0.85rem; color: #7a82a0; }
+
+  /* ===== HOW IT WORKS ===== */
+  #how { background: #0e1020; }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 48px; max-width: 700px; }
+  .step {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    position: relative;
+  }
+  .step:not(:last-child) .step-line {
+    position: absolute;
+    left: 23px; top: 50px;
+    width: 2px; height: calc(100% - 10px);
+    background: linear-gradient(to bottom, rgba(139,124,248,0.4), rgba(139,124,248,0.05));
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b7cf8, #5eaeff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 800; color: #fff;
+    box-shadow: 0 4px 18px rgba(139,124,248,0.3);
+    position: relative; z-index: 1;
+  }
+  .step-content { padding: 10px 0 40px; }
+  .step-content h3 { font-size: 1.05rem; font-weight: 700; color: #f0f2ff; margin-bottom: 6px; }
+  .step-content p { font-size: 0.9rem; color: #7a82a0; }
+
+  /* ===== DATA NEEDED ===== */
+  #data { background: #0b0d14; }
+  .data-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 48px;
+    align-items: start;
+  }
+  .data-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .data-field {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(139,124,248,0.12);
+    border-radius: 12px;
+    padding: 14px 18px;
+    transition: border-color 0.2s;
+  }
+  .data-field:hover { border-color: rgba(139,124,248,0.3); }
+  .data-field-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b7cf8, #5eaeff);
+    flex-shrink: 0;
+  }
+  .data-field span { font-size: 0.95rem; font-weight: 600; color: #d0d4ee; }
+  .trust-box {
+    background: linear-gradient(135deg, rgba(139,124,248,0.08), rgba(94,174,255,0.05));
+    border: 1px solid rgba(139,124,248,0.2);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .trust-box .trust-icon { font-size: 2rem; margin-bottom: 14px; display: block; }
+  .trust-box h3 { font-size: 1rem; font-weight: 700; color: #f0f2ff; margin-bottom: 10px; }
+  .trust-box p { font-size: 0.9rem; color: #9ba3bf; line-height: 1.7; }
+
+  /* ===== PACKAGES ===== */
+  #packages { background: #0e1020; }
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+    margin-top: 48px;
+  }
+  .pkg-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(139,124,248,0.14);
+    border-radius: 18px;
+    padding: 32px 28px;
+    position: relative;
+    transition: all 0.25s;
+  }
+  .pkg-card:hover { transform: translateY(-4px); border-color: rgba(139,124,248,0.4); }
+  .pkg-card.featured {
+    background: linear-gradient(145deg, rgba(139,124,248,0.1), rgba(94,174,255,0.06));
+    border-color: rgba(139,124,248,0.4);
+  }
+  .pkg-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #8b7cf8, #5eaeff);
+    color: #fff; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 100px;
+    white-space: nowrap;
+  }
+  .pkg-icon { font-size: 2rem; margin-bottom: 18px; display: block; }
+  .pkg-name { font-size: 1.2rem; font-weight: 800; color: #f0f2ff; margin-bottom: 8px; }
+  .pkg-desc { font-size: 0.9rem; color: #7a82a0; margin-bottom: 22px; }
+  .pkg-features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
+  .pkg-features li {
+    font-size: 0.88rem; color: #9ba3bf;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .pkg-features li::before {
+    content: '✓';
+    color: #8b7cf8; font-weight: 700; flex-shrink: 0;
+  }
+  .pkg-price {
+    font-size: 0.85rem; font-weight: 600;
+    color: #8b7cf8;
+    background: rgba(139,124,248,0.1);
+    border: 1px solid rgba(139,124,248,0.2);
+    padding: 8px 14px; border-radius: 8px;
+    display: inline-block;
+  }
+
+  /* ===== WHY US ===== */
+  #why { background: #0b0d14; }
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    margin-top: 48px;
+  }
+  .why-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(139,124,248,0.1);
+    border-radius: 14px;
+    padding: 26px 22px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .why-card:hover { border-color: rgba(139,124,248,0.3); background: rgba(139,124,248,0.04); }
+  .why-card .icon { font-size: 1.8rem; margin-bottom: 14px; display: block; }
+  .why-card h3 { font-size: 0.95rem; font-weight: 700; color: #f0f2ff; margin-bottom: 8px; }
+  .why-card p { font-size: 0.84rem; color: #7a82a0; }
+
+  /* ===== ABOUT ===== */
+  #about {
+    background: linear-gradient(135deg, rgba(139,124,248,0.07) 0%, rgba(94,174,255,0.04) 100%);
+    border-top: 1px solid rgba(139,124,248,0.1);
+    border-bottom: 1px solid rgba(139,124,248,0.1);
+  }
+  .about-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .about-inner p { font-size: 1.05rem; color: #9ba3bf; line-height: 1.8; }
+
+  /* ===== CTA ===== */
+  #cta {
+    background: #0e1020;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #cta::before {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(139,124,248,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  #cta .section-subtitle { margin: 0 auto 40px; }
+  .cta-note { font-size: 0.83rem; color: #5a6280; margin-top: 16px; }
+
+  /* ===== CONTACT ===== */
+  #contact { background: #0b0d14; }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    margin-top: 48px;
+  }
+  .contact-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(139,124,248,0.12);
+    border-radius: 14px;
+    padding: 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .contact-card:hover { border-color: rgba(139,124,248,0.35); transform: translateY(-2px); }
+  .contact-icon {
+    font-size: 1.5rem;
+    width: 48px; height: 48px;
+    background: rgba(139,124,248,0.1);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .contact-info label { font-size: 0.75rem; color: #5a6280; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .contact-info p { font-size: 0.92rem; color: #c5c8e8; font-weight: 600; margin-top: 3px; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: #080a12;
+    border-top: 1px solid rgba(139,124,248,0.08);
+    padding: 30px 0;
+    text-align: center;
+  }
+  footer p { font-size: 0.82rem; color: #3a3f5c; }
+  footer span { color: #8b7cf8; }
+
+  /* ===== MOBILE NAV ===== */
+  @media (max-width: 720px) {
+    .nav-toggle { display: flex; }
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      background: rgba(11,13,20,0.97);
+      backdrop-filter: blur(14px);
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(139,124,248,0.12);
+      gap: 18px;
+    }
+    .nav-links.open { display: flex; }
+    nav { position: relative; }
+    .data-wrap { grid-template-columns: 1fr; }
+    .steps { max-width: 100%; }
+    .hero-btns { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <div class="container nav-inner">
+    <div class="nav-logo">GoExecuteX <span>Insights</span></div>
+    <div class="nav-links" id="navLinks">
+      <a href="#problem">Problem</a>
+      <a href="#analyze">What We Analyze</a>
+      <a href="#how">How It Works</a>
+      <a href="#packages">Packages</a>
+      <a href="#contact" class="nav-cta">Get Started</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== 1. HERO ===== -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-badge">Sales & Profit Intelligence</div>
+    <h1 class="hero-title">GoExecuteX <span class="gradient-text">Insights</span></h1>
+    <p class="hero-subtitle">Sales & Profit Analysis for Small Businesses</p>
+    <p class="hero-main">Most businesses know what sells.<br>We help you understand what actually makes profit.</p>
+    <p class="hero-desc">
+      We analyze your sales data and deliver clear, visual insights — showing you which products drive real profit, which ones hurt your margins, and exactly where to focus next.
+    </p>
+    <div class="hero-btns">
+      <!-- UPDATE: Change href below to your WhatsApp link or contact form -->
+      <a href="#contact" class="btn btn-primary">Request Analysis</a>
+      <!-- UPDATE: Change href below to a link to your sample report PDF or Google Drive -->
+      <a href="#analyze" class="btn btn-secondary">View Sample Insights</a>
+    </div>
+    <p class="hero-tagline">Sales data <span>→</span> clear profit decisions.</p>
+  </div>
+</section>
+
+<!-- ===== 2. PROBLEM ===== -->
+<section id="problem" class="section">
+  <div class="container">
+    <p class="section-label">The Problem</p>
+    <h2 class="section-title">High sales don't always<br>mean <span class="gradient-text">high profit</span></h2>
+    <p class="section-subtitle">Many small businesses are making the same costly mistake — and they don't even know it.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <span class="problem-icon">📈</span>
+        <h3>Revenue ≠ Profit</h3>
+        <p>A product selling 500 units a month can still be losing you money if the margin is too thin.</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">🏆</span>
+        <h3>Best-Sellers Can Mislead</h3>
+        <p>Your top-selling item might be your lowest-margin product — quietly working against your business.</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">📂</span>
+        <h3>Data Without Insight</h3>
+        <p>Most small businesses have sales data sitting in spreadsheets, but no system to extract useful decisions from it.</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">📣</span>
+        <h3>Promoting the Wrong Products</h3>
+        <p>Without profit visibility, businesses often invest marketing budget into products that don't actually grow the bottom line.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3. WHAT WE ANALYZE ===== -->
+<section id="analyze" class="section">
+  <div class="container">
+    <p class="section-label">What We Analyze</p>
+    <h2 class="section-title">A complete picture of<br><span class="gradient-text">your product performance</span></h2>
+    <p class="section-subtitle">We go beyond basic sales numbers to reveal what's truly driving — or draining — your profits.</p>
+    <div class="analyze-grid">
+      <div class="analyze-card">
+        <span class="icon">🥇</span>
+        <h3>Best-Selling Items</h3>
+        <p>See which products lead in volume and revenue.</p>
+      </div>
+      <div class="analyze-card">
+        <span class="icon">💰</span>
+        <h3>Most Profitable Items</h3>
+        <p>Identify which products generate the highest real profit margins.</p>
+      </div>
+      <div class="analyze-card">
+        <span class="icon">⚠️</span>
+        <h3>Low-Margin Products</h3>
+        <p>Pinpoint items that sell well but contribute little to actual profit.</p>
+      </div>
+      <div class="analyze-card">
+        <span class="icon">🕳️</span>
+        <h3>Hidden Profit Leaks</h3>
+        <p>Uncover products or patterns that are quietly reducing your bottom line.</p>
+      </div>
+      <div class="analyze-card">
+        <span class="icon">📊</span>
+        <h3>Sales Trends</h3>
+        <p>Spot seasonal patterns, growth signals, and demand shifts over time.</p>
+      </div>
+      <div class="analyze-card">
+        <span class="icon">📦</span>
+        <h3>Product Performance</h3>
+        <p>Compare all your products side-by-side on profit, volume, and value.</p>
+      </div>
+      <div class="analyze-card">
+        <span class="icon">🎯</span>
+        <h3>Action Recommendations</h3>
+        <p>Receive clear, practical next steps — not just charts, but decisions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4. HOW IT WORKS ===== -->
+<section id="how" class="section">
+  <div class="container">
+    <p class="section-label">How It Works</p>
+    <h2 class="section-title">Simple process,<br><span class="gradient-text">powerful results</span></h2>
+    <p class="section-subtitle">No complicated setup. Just four clear steps to your profit insights.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-line"></div>
+        <div class="step-content">
+          <h3>Send Your Sales File</h3>
+          <p>Share your sales data with us as a CSV or Excel file. No special format required — we handle it from there.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-line"></div>
+        <div class="step-content">
+          <h3>We Clean and Analyze the Data</h3>
+          <p>Our team processes your data using our custom analytics tool, organizing it for deep profit and performance analysis.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-line"></div>
+        <div class="step-content">
+          <h3>We Generate Dashboard Insights</h3>
+          <p>Your data is transformed into a clear, visual dashboard — easy to read, even with no technical background.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-line"></div>
+        <div class="step-content">
+          <h3>You Receive Clear Recommendations</h3>
+          <p>We deliver your insights along with practical, actionable recommendations so you know exactly what to do next.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5. DATA NEEDED ===== -->
+<section id="data" class="section">
+  <div class="container">
+    <p class="section-label">Data We Need</p>
+    <h2 class="section-title">Just the basics —<br><span class="gradient-text">nothing private</span></h2>
+    <p class="section-subtitle">We keep the data requirements minimal and respect your privacy completely.</p>
+    <div class="data-wrap">
+      <div class="data-fields">
+        <div class="data-field"><div class="data-field-dot"></div><span>Item Name</span></div>
+        <div class="data-field"><div class="data-field-dot"></div><span>Quantity Sold</span></div>
+        <div class="data-field"><div class="data-field-dot"></div><span>Selling Price</span></div>
+        <div class="data-field"><div class="data-field-dot"></div><span>Cost Price</span></div>
+        <div class="data-field"><div class="data-field-dot"></div><span>Date of Sale</span></div>
+      </div>
+      <div class="trust-box">
+        <span class="trust-icon">🔒</span>
+        <h3>Your Privacy Is Safe</h3>
+        <p>You can remove customer names, phone numbers, and any private information before sharing. We only need basic sales and cost data — nothing personal is required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 6. PACKAGES ===== -->
+<section id="packages" class="section">
+  <div class="container">
+    <p class="section-label">Service Packages</p>
+    <h2 class="section-title">Choose the right<br><span class="gradient-text">level of insight</span></h2>
+    <p class="section-subtitle">All packages are currently in beta. Contact us to discuss the right option for your business.</p>
+    <div class="packages-grid">
+      <div class="pkg-card">
+        <span class="pkg-icon">🔍</span>
+        <div class="pkg-name">Profit Check</div>
+        <div class="pkg-desc">A focused snapshot of your profit performance.</div>
+        <ul class="pkg-features">
+          <li>Basic profit dashboard</li>
+          <li>Key profit & margin insights</li>
+          <li>Best-selling vs. most profitable items</li>
+          <li>Delivered as visual report</li>
+        </ul>
+        <span class="pkg-price">Contact for beta pricing</span>
+      </div>
+      <div class="pkg-card featured">
+        <div class="pkg-badge">Most Popular</div>
+        <span class="pkg-icon">📊</span>
+        <div class="pkg-name">Sales Profit Report</div>
+        <div class="pkg-desc">A full analysis with actionable recommendations.</div>
+        <ul class="pkg-features">
+          <li>Full dashboard with all metrics</li>
+          <li>Profit & margin breakdown</li>
+          <li>Low-margin & leak detection</li>
+          <li>Written summary report</li>
+          <li>Clear next-step recommendations</li>
+        </ul>
+        <span class="pkg-price">Contact for beta pricing</span>
+      </div>
+      <div class="pkg-card">
+        <span class="pkg-icon">📅</span>
+        <div class="pkg-name">Monthly Tracking</div>
+        <div class="pkg-desc">Ongoing analysis to track your growth over time.</div>
+        <ul class="pkg-features">
+          <li>Monthly profit analysis</li>
+          <li>Month-over-month comparison</li>
+          <li>Trend tracking & alerts</li>
+          <li>Ongoing recommendations</li>
+        </ul>
+        <span class="pkg-price">Contact for beta pricing</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. WHY US ===== -->
+<section id="why" class="section">
+  <div class="container">
+    <p class="section-label">Why GoExecuteX Insights</p>
+    <h2 class="section-title">Built for small businesses.<br><span class="gradient-text">Focused on profit.</span></h2>
+    <p class="section-subtitle">We do one thing very well — turn your sales data into clear profit understanding.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <span class="icon">💡</span>
+        <h3>Simple to Understand</h3>
+        <p>No jargon, no complexity. Every insight is explained in plain business language.</p>
+      </div>
+      <div class="why-card">
+        <span class="icon">🏪</span>
+        <h3>Built for Small Businesses</h3>
+        <p>Designed specifically for restaurants, cafes, salons, retail stores, and online sellers.</p>
+      </div>
+      <div class="why-card">
+        <span class="icon">📁</span>
+        <h3>Works With CSV & Excel</h3>
+        <p>No special software needed. If you have a spreadsheet, you're ready to start.</p>
+      </div>
+      <div class="why-card">
+        <span class="icon">💸</span>
+        <h3>Profit-First Approach</h3>
+        <p>We look beyond sales volume to show you what genuinely grows your business.</p>
+      </div>
+      <div class="why-card">
+        <span class="icon">🎯</span>
+        <h3>Clear Next Steps</h3>
+        <p>Every analysis ends with practical recommendations, not just numbers and charts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 8. ABOUT ===== -->
+<section id="about" class="section">
+  <div class="container">
+    <div class="about-inner">
+      <p class="section-label" style="text-align:center">About Us</p>
+      <h2 class="section-title">Why we built this</h2>
+      <p style="margin-top:24px">
+        GoExecuteX Insights was created to help small businesses turn everyday sales data into clear business decisions. The goal is simple: make profit analysis easier, faster, and more understandable for business owners — no accounting background required, no expensive consultants needed.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 9. CTA ===== -->
+<section id="cta" class="section">
+  <div class="container">
+    <p class="section-label" style="text-align:center">Get Started</p>
+    <h2 class="section-title" style="text-align:center">Ready to see what your<br><span class="gradient-text">sales data is hiding?</span></h2>
+    <p class="section-subtitle" style="text-align:center; margin: 0 auto 40px;">
+      Reach out today and let us run a sales profit analysis for your business. Most business owners are surprised by what the numbers reveal.
+    </p>
+    <!-- UPDATE: Change href to your WhatsApp link, email, or contact form -->
+    <div style="text-align:center">
+      <a href="#contact" class="btn btn-primary" style="font-size:1rem; padding:15px 36px;">Request Your Free Consultation</a>
+      <p class="cta-note">No commitment required · Works with any CSV or Excel file</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 10. CONTACT ===== -->
+<section id="contact" class="section">
+  <div class="container">
+    <p class="section-label">Contact</p>
+    <h2 class="section-title">Let's talk about<br><span class="gradient-text">your business</span></h2>
+    <p class="section-subtitle">We'd love to hear about your business and show you what profit analysis can do for you.</p>
+    <div class="contact-grid">
+
+      <!-- UPDATE: Replace your-email@example.com with your actual email address -->
+      <a href="mailto:your-email@example.com" class="contact-card">
+        <div class="contact-icon">✉️</div>
+        <div class="contact-info">
+          <label>Email</label>
+          <p>your-email@example.com</p>
+        </div>
+      </a>
+
+      <!-- UPDATE: Replace @goexecutex with your actual Instagram handle, and update the href URL -->
+      <a href="https://instagram.com/goexecutex" target="_blank" class="contact-card">
+        <div class="contact-icon">📸</div>
+        <div class="contact-info">
+          <label>Instagram</label>
+          <p>@goexecutex</p>
+        </div>
+      </a>
+
+      <!-- UPDATE: Replace YOUR_LINKEDIN_URL with your actual LinkedIn profile URL, and update the display text -->
+      <a href="https://linkedin.com/in/YOUR_LINKEDIN_URL" target="_blank" class="contact-card">
+        <div class="contact-icon">💼</div>
+        <div class="contact-info">
+          <label>LinkedIn</label>
+          <p>GoExecuteX Insights</p>
+        </div>
+      </a>
+
+      <!-- UPDATE: Replace YOUR_WHATSAPP_NUMBER with your number in international format e.g. 971501234567
+           Remove this entire block if you don't want to show WhatsApp -->
+      <a href="https://wa.me/YOUR_WHATSAPP_NUMBER" target="_blank" class="contact-card">
+        <div class="contact-icon">💬</div>
+        <div class="contact-info">
+          <label>WhatsApp</label>
+          <p>Message Us</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <p>© 2025 <span>GoExecuteX Insights</span>. All rights reserved. · Sales data → clear profit decisions.</p>
+  </div>
+</footer>
+
+<!-- ===== SIMPLE JS: Mobile Nav Toggle ===== -->
+<script>
+  const toggle = document.getElementById('navToggle');
+  const links  = document.getElementById('navLinks');
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+</script>
+
+</body>
+</html>
